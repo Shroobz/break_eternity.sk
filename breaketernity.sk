@@ -1,0 +1,77 @@
+options:
+	max_e: 4 # at what amount of e's to use (e^layer)mag in format
+
+
+
+function createbignum(layers: number = 0, mag: number = 0, sign: number = 0) :: numbers:
+	if {_sign} = 0:
+		set {_r::1} to 0
+		set {_r::2} to 0
+		set {_r::3} to 0
+		return {_r::*}
+	if {_sign} = 1 or -1:
+		set {_r::1} to {_layers}
+		set {_r::2} to {_mag}
+		set {_r::3} to {_sign}
+		return {_r::*}
+	return -10^309
+function breaketernityformat(n: numbers) :: string:
+	if {_n::3} = 0: # returning 0 if number is 0
+		return "0"
+	if {_n::3} isn't -1, 0 or 1: # returning NaN if sign is illegal
+		return "NaN"
+	if {_n::1}, {_n::2} or {_n::3} isn't set: # returning NaN if not everything is set
+		return "NaN" 
+	# idk how I would check for infinity
+	if {_n::1} = 0:
+		if abs({_n::2}*{_n::3}) is between 0.01 and 1000000:
+			{_n::2} < 1000000 # 1m is scientific notation (because your mind can process up to 5 numbers instantly)
+			return "%{_n::2}*{_n::3}%"
+		return scientificnotation({_n::2}*{_n::3})
+	if {_n::1} = 1:
+		if {_n::2} < 1000000:	
+			return "%10^({_n::2}-floor({_n::2}))*{_n::3}%e%floor({_n::2})%"
+		if {_n::3} = 1: # removes the number before the first e and turns it into double scientific notation
+			return "e%scientificnotation({_n::2})%"
+		return "-e%scientificnotation({_n::2})%" # same as last conditional but negative
+	if {_n::1} >= 2:
+		if {_n::1} <= {@max_e}:
+			set {_e} to "" # the {_e} part is "borrowed" from fantoccini
+			loop {_n::1} times:
+				set {_e} to "%{_e}%e"
+			if {_n::2} >= 1000000: # if mag >= 1000000 add another layer of scientific notation
+				if {_n::1}+1 >= {@max_e}: # if layers+1 >= max_e return breaketernityformat(layer+1, log(mag), sign)
+					return breaketernityformat(createbignum({_n::1}+1, log({_n::2}), {_n::3}))
+				set {_e} to "%{_e}%e"
+				set {_n::2} to log({_n::2})
+			return "%{_e}%%{_n::2}%" if {_n::3} = 1
+			return "-%{_e}%%{_n::2}%" # same as last line but negative
+		return "(e^%{_n::1}%)%{_n::2}%" if {_n::3} = 1
+		return "-(e^%{_n::1}%)%{_n::2}%" if {_n::3} = -1
+	
+	
+function scientificnotation(n: number) :: string: # most efficient scientific notation I know
+	return "0" if {_n} = 0 # return 0 if n is 0
+	if {_n} > 0: # case for positive numbers
+		set {_n2} to floor(log({_n}))
+		set {_n} to log({_n})
+		return "%10^({_n}-{_n2})%e%{_n2}%"
+	else if {_n} < 0: # case for negative numbers
+		set {_n} to abs({_n})
+		set {_n2} to floor(log({_n}))
+		set {_n} to log({_n})
+		return "-%10^({_n}-{_n2})%e%{_n2}%"
+	
+on join:
+	wait 3 seconds
+	set {money::%player's uuid%::*} to createbignum(1, 1, 1)
+	while player is online:
+		wait a tick
+		set title of player's scoreboard to "numbatest"
+		add 0.1*{money::%player's uuid%::1}^0.5 to {money::%player's uuid%::2}
+		if {money::%player's uuid%::2} >= 10:
+			set {_e} to floor({money::%player's uuid%::2}/10)
+			remove {_e}*10 from {money::%player's uuid%::2}
+			add {_e} to {money::%player's uuid%::1}
+		set line 1 of player's scoreboard to breaketernityformat({money::%player's uuid%::*})
+		
