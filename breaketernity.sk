@@ -64,7 +64,7 @@ function isfinite(n: numbers) :: boolean: # checks for infinity
 	return false if {_n::3} isn't -1, 0 or 1
 	return true
 
-function createbignum(layers: number = 0, mag: number = 0, sign: number = 0) :: numbers:
+function createsupernum(layers: number = 0, mag: number = 0, sign: number = 0) :: numbers:
 	if {_sign} = 0: # 0 = 0 :brain:
 		set {_n::1} to 0
 		set {_n::2} to 0
@@ -104,7 +104,7 @@ function breaketernityformat(n: numbers) :: string:
 				set {_e} to "%{_e}%e"
 			if {_n::2} >= 1000000: # if mag >= 1000000 add another layer of scientific notation
 				if {_n::1}+1 >= {@max_e}: # if layers+1 >= max_e return breaketernityformat(layer+1, log(mag), sign)
-					return breaketernityformat(createbignum({_n::1}+1, log({_n::2}), {_n::3}))
+					return breaketernityformat(createsupernum({_n::1}+1, log({_n::2}), {_n::3}))
 				set {_e} to "%{_e}%e"
 				set {_n::2} to log({_n::2})
 			return "%{_e}%%{_n::2}%" if {_n::3} = 1
@@ -112,8 +112,73 @@ function breaketernityformat(n: numbers) :: string:
 		return "(e^%{_n::1}%)%{_n::2}%" if {_n::3} = 1
 		return "-(e^%{_n::1}%)%{_n::2}%" if {_n::3} = -1
 	
+function fromString(value: string) :: numbers: # ah shi, here we go again
+	set {_originalValue} to {_value}
+	# I'm supposed to do some LRUCache stuff right here but I don't even know what that is so we skip to x^^^y format yey!
+	set {_pentationparts::*} to {_value} split at "^^^"
+	if size of {_pentationparts::*} = 2:
+		set {_base} to {_pentationparts::1} parsed as number
+		set {_height} to {_pentationparts::2} parsed as number
+		set {_heightparts::*} to {_pentationparts::2} split at ";"
+		set {_payload} to 1
+		if size of {_heightparts::*} = 2:
+			set {_payload} to {_heightparts::2} parsed as number
 
-function scientificnotation(n: number) :: string: # most efficient scientific notation I know
+			if {_payload} = infinity value:
+				set {_payload} to 1
+		if {_base} != infinity value:
+			if {_height} != infinity value:
+				parse if false = true: # pentation isn't added yet
+					set {_result::*} to superpentate(({_base}, {_height}, {_payload}))
+					set {_n::1} to {_result::1}
+					set {_n::2} to {_result::2}
+					set {_n::3} to {_result::3}
+					return {_n::*} # dunno why patashu didn't just return result, we'll never know (unless he sees this)
+	set {_tetrationparts::*} to {_value} split at "^^" # Handle x^^y format
+	if size of {_tetrationparts::*} = 2:
+		set {_base2} to {_tetrationparts::1} parsed as number
+		set {_height2} to {_tetrationparts::2} parsed as number
+		set {_heightparts::*} to {_tetrationparts::2} split at ";"
+		set {_payload} to 1
+		if size of {_heightparts::*} = 2:
+			set {_payload} to {_heightparts::2} parsed as number
+			if {_payload} = infinity value:
+				set {_payload} to 1
+		if {_base2} != infinity value:
+			if {_height2} != infinity value:
+				parse if false = true: # tetration is also not added yet
+					set {_result::*} to supertetrate(({_base2}, {_height2}, {_payload}))
+					set {_n::1} to {_result::1}
+					set {_n::2} to {_result::2}
+					set {_n::3} to {_result::3}
+					return {_n::*} # hey! this is just pentate but with tetration! why didn't I copy and paste this!
+	set {_powparts::*} to {_value} split at "^"
+	if size of {_powparts::*} = 2:
+		set {_base3} to {_powparts::1} parsed as number
+		set {_exponent} to {_powparts::2} parsed as number
+
+		if {_base3} != infinity value:
+			if {_exponent} != infinity value:
+				set {_result2::*} to superpow({_base3}, {_exponent})
+				set {_n::1} to {_result2::1}
+				set {_n::2} to {_result2::2}
+				set {_n::3} to {_result2::3}
+				return {_n::*}
+	# Handle various cases involving it being a Big Number
+	
+	# set {_value} to {_value} in lowercase
+	# set {_ptparts::*} to {_value} split at "pt" # Handle X PT Y format
+
+	# if size of {_ptparts::*} = 2:
+
+	
+		
+
+
+
+
+
+function scientificnotation(n: number) :: string: # most efficient scientific notation I know (that's a lie I can make this like 12% faster)
 	return "0" if {_n} = 0 # return 0 if n is 0
 	if {_n} > 0: # case for positive numbers
 		set {_n2} to floor(log({_n}))
@@ -130,13 +195,13 @@ function scientificnotation(n: number) :: string: # most efficient scientific no
 command normalize <number> <number> <number>:
 	trigger:
 		broadcast normalize((arg-1, arg-2, arg-3))	
-command bigformat <number> <number> <number>:
+command superformat <number> <number> <number>:
 	trigger:
-		broadcast breaketernityformat(createbignum(arg-1, arg-2, arg-3))
+		broadcast breaketernityformat(createsupernum(arg-1, arg-2, arg-3))
 	
 on join:
 	wait 3 seconds
-	set {money::%player's uuid%::*} to createbignum(20, 1, 1)
+	set {money::%player's uuid%::*} to createsupernum(20, 1, 1)
 	while player is online:
 		wait 4 ticks
 		set title of player's scoreboard to "numbatest"
