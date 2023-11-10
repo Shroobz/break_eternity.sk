@@ -19,7 +19,7 @@ on load:
 function neg(n: numbers) :: numbers:
 	return ({_n::1}, {_n::2}, {_n::3}*-1)
 
-local function fromnumber(n: number) :: numbers:
+function fromnumber(n: number) :: numbers:
 	return normalize((0, abs({_n}), Math_Sign({_n})))
 
 local function Math_Sign(n: number) :: number:
@@ -274,7 +274,7 @@ function superpow10(n: numbers) :: numbers:
 		{_a::3} < 0
 		{_a::2} >= 0
 	then:
-		return ({_a::1} + 1, {_a::2} * -1, {_a::3} * -1)
+		return ({_a::1} + 1, {_a::2}*-1, {_a::3}*-1)
 	return 1
 
 function superabslog10(n: numbers) :: numbers:
@@ -573,29 +573,6 @@ function superlog(n: numbers, base: numbers) :: numbers:
 	return superdiv(superlog10({_n::*}), superlog10({_base::*}))
 
 
-# this is maybe coming maybe soon maybe not maybe maybe
-# function supertetrate(n: numbers, height: number) :: numbers: # finally a god damn regular number
-# 	# wtf is payload, patashu, I'll just not.
-# 	if {_height} = 1: # x^^1 = x
-# 		return {_n::*}
-# 	if {_height} = 0: # x^^0 = 1
-# 		return (0, 1, 1)
-# 	if {_n::*} = (0, 1, 1): # 1^^x = 1
-# 		return (0, 1, 1)
-# 	if {_n::*} = (0, 1, -1): # -1^^x = -1
-# 		return (0, 1, -1)
-	
-# 	# no infinite height for you! haha losers
-
-# 	# 0^^1 = 0, 0^^2 = 1, 0^^3 = 0, etc
-# 	if {_n::3} = 0:
-# 		set {_result} to abs(mod({_height}+1, 2))
-# 		if {_result} >= 1:
-# 			set {_result} to 2 - {_result}
-# 		return fromnumber({_result})
-	
-
-
 
 
 
@@ -634,8 +611,6 @@ command maxabs <numbers> <numbers>:
 	trigger:
 		broadcast maxabs(arg-1, arg-2)
 
-
-
 command fromnumber <number>:
 	trigger:
 		broadcast fromnumber(arg)
@@ -647,15 +622,4 @@ command superformat <number> <number> <number>:
 	trigger:
 		broadcast breaketernityformat(createsupernum(arg-1, arg-2, arg-3))
 	
-on join:
-	wait 3 seconds
-	set {money::%player's uuid%::*} to createsupernum(20, 1, 1)
-	while player is online:
-		wait 4 ticks
-		set title of player's scoreboard to "numbatest"
-		set {money::%player's uuid%::2} to {money::%player's uuid%::2}/50
-		set {money::%player's uuid%::*} to normalize({money::%player's uuid%::*})
-		broadcast ""
-		broadcast {money::%player's uuid%::*}
-		set line 1 of player's scoreboard to breaketernityformat({money::%player's uuid%::*})
 		
